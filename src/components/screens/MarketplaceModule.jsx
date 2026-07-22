@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { AppContext } from '../../context/AppContext';
 import { Search, Sliders, Map, MapPin, Grid, X, Mic, Heart } from 'lucide-react';
 
-export default function SearchModule() {
+export default function MarketplaceModule() {
   const { 
     activeScreen, 
     setActiveScreen, 
@@ -291,10 +291,10 @@ export default function SearchModule() {
             <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Found {filteredPets.length} matching pets</p>
           </div>
           <div style={{ display: 'flex', gap: '6px' }}>
-            <button onClick={() => setActiveScreen('AdvancedFilters')} style={{ background: 'var(--bg-input)', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyCenter: 'center', padding: '6px' }}>
+            <button onClick={() => setActiveScreen('AdvancedFilters')} style={{ background: 'var(--bg-input)', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px' }}>
               <Sliders size={14} />
             </button>
-            <button onClick={() => setActiveScreen('MapView')} style={{ background: 'var(--bg-input)', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyCenter: 'center', padding: '6px' }}>
+            <button onClick={() => setActiveScreen('MapView')} style={{ background: 'var(--bg-input)', width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px' }}>
               <Map size={14} />
             </button>
           </div>
@@ -332,7 +332,7 @@ export default function SearchModule() {
             <p style={{ fontSize: '0.75rem', marginTop: '4px' }}>Try broadening your search keywords or resetting active filters.</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div className="responsive-grid">
             {filteredPets.map(pet => (
               <div 
                 key={pet.id} 

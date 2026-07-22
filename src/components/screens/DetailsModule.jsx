@@ -423,7 +423,7 @@ export default function DetailsModule() {
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '10px' }}>
           <img src={pet.owner.avatar} alt={pet.owner.name} style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--primary-light)' }} />
           <div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', justifyCenter: 'center' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'center' }}>
               <span>{pet.owner.name}</span>
               {pet.owner.verified && <CheckCircle size={16} style={{ color: 'var(--accent)' }} fill="var(--accent-light)" />}
             </h2>

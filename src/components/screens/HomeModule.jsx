@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { AppContext } from '../../context/AppContext';
-import { Search, MapPin, Heart, Flame, Sparkles, Clock, Compass, ArrowRight } from 'lucide-react';
+import { Search, MapPin, Heart, Flame, Sparkles, Clock, Compass, ArrowRight, Bell } from 'lucide-react';
 
 export default function HomeModule() {
   const { 
@@ -32,16 +32,26 @@ export default function HomeModule() {
     return (
       <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '20px' }} className="animate-fade-in">
         {/* Welcome Block */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Welcome back 👋</span>
-            <h1 style={{ fontSize: '1.4rem', marginTop: '2px' }}>{currentUser?.name || 'Guest User'}</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>👋 Welcome, {currentUser?.name || 'Guest User'}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+              <MapPin size={14} style={{ color: 'var(--primary)' }} />
+              <span>Current Location</span>
+            </div>
           </div>
-          <img 
-            src={currentUser?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop'} 
-            alt="Profile" 
-            style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary-light)' }} 
-          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button style={{ position: 'relative', background: 'var(--bg-input)', border: 'none', borderRadius: '50%', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <Bell size={20} style={{ color: 'var(--text-main)' }} />
+              <span style={{ position: 'absolute', top: '2px', right: '4px', width: '8px', height: '8px', background: 'var(--accent)', borderRadius: '50%', border: '1px solid var(--bg-card)' }}></span>
+            </button>
+            <img 
+              src={currentUser?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop'} 
+              alt="Profile" 
+              style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--primary-light)', cursor: 'pointer' }}
+              onClick={() => setActiveScreen('ProfileDashboard')} 
+            />
+          </div>
         </div>
 
         {/* Search Bar Trigger */}
@@ -130,7 +140,7 @@ export default function HomeModule() {
             <button onClick={() => setActiveScreen('PopularPets')} style={{ background: 'none', color: 'var(--primary)', fontSize: '0.8rem', fontWeight: '600' }}>See Popular</button>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div className="responsive-grid">
             {featuredPets.map(pet => (
               <div 
                 key={pet.id} 
@@ -183,7 +193,7 @@ export default function HomeModule() {
             <button onClick={() => setActiveScreen('NearbyPets')} style={{ background: 'none', color: 'var(--primary)', fontSize: '0.8rem', fontWeight: '600' }}>View Map</button>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div className="responsive-grid">
             {nearbyPets.map(pet => (
               <div 
                 key={pet.id} 
@@ -266,7 +276,7 @@ export default function HomeModule() {
           {subtitle && <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '2px' }}>{subtitle}</p>}
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div className="responsive-grid">
           {petList.map(pet => (
             <div 
               key={pet.id} 

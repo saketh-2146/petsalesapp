@@ -48,7 +48,7 @@ export default function AuthModule() {
     e.preventDefault();
     if (!loginEmail || !loginPassword) return;
     
-    // Firebase Auth login
+    // Custom Backend login
     const { data, error } = await authService.login(loginEmail, loginPassword);
     
     if (error) {
@@ -56,13 +56,17 @@ export default function AuthModule() {
       return;
     }
 
-    // Fetch user profile from database using Firebase UID
-    const { data: profile } = await authService.getUserProfile(data.user.uid);
+    if (data?.token) {
+      localStorage.setItem('token', data.token);
+    }
+
+    // Fetch user profile from custom backend
+    const { data: profile } = await authService.getUserProfile('me');
 
     const loggedInUser = {
-      id: data.user.uid,
-      name: profile?.full_name || data.user.displayName || loginEmail.split('@')[0],
-      email: loginEmail,
+      id: profile?.id || data?.user?.id || 'temp-id',
+      name: profile?.full_name || loginEmail.split('@')[0],
+      email: profile?.email || loginEmail,
       role: profile?.role || 'Buyer',
       avatar: profile?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop'
     };
@@ -72,22 +76,7 @@ export default function AuthModule() {
   };
 
   const handleGoogleLogin = async () => {
-    const { data, error } = await authService.signInWithOAuth('google');
-    if (error) {
-      alert(`Google Login failed: ${error}`);
-      return;
-    }
-    // Google login succeeded — set user and navigate
-    const user = data?.user;
-    const { data: profile } = await authService.getUserProfile(user.uid);
-    setCurrentUser({
-      id: user.uid,
-      name: profile?.full_name || user.displayName || 'Google User',
-      email: user.email,
-      role: profile?.role || 'Buyer',
-      avatar: profile?.avatar_url || user.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop'
-    });
-    setActiveScreen('HomeDashboard');
+    alert('Google Login is not currently configured for the custom backend.');
   };
 
   const validateEmail = (email) => {
@@ -136,11 +125,13 @@ export default function AuthModule() {
 
     setRegSuccess('Congratulations you have registered to pet sales app!');
 
-    // Delay login and navigation to allow user to see the success message
     setTimeout(() => {
-      const user = data?.user;
+      if (data?.token) {
+        localStorage.setItem('token', data.token);
+      }
+      
       const loggedInUser = {
-        id: user?.uid,
+        id: data?.user?.id || 'temp-id',
         name: regName,
         email: regEmail,
         role: regRole,
@@ -265,7 +256,8 @@ export default function AuthModule() {
   // Screen 5: Login Screen
   if (activeScreen === 'Login') {
     return (
-      <div style={{ flex: 1, padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }} className="animate-fade-in">
+      <div className="auth-page-wrapper animate-fade-in">
+        <div className="form-card">
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
           <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '2rem', marginBottom: '6px' }}>Welcome Back</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Login to access your premium pet database</p>
@@ -329,13 +321,15 @@ export default function AuthModule() {
           <button onClick={() => setActiveScreen('Register')} style={{ background: 'none', color: 'var(--primary)', fontWeight: '700' }}>Register</button>
         </div>
       </div>
+      </div>
     );
   }
 
   // Screen 6: Registration
   if (activeScreen === 'Register') {
     return (
-      <div style={{ flex: 1, padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }} className="animate-fade-in">
+      <div className="auth-page-wrapper animate-fade-in">
+        <div className="form-card">
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.8rem', marginBottom: '6px' }}>Join Paws & Claws</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Set up your seller or adopter profile</p>
@@ -441,13 +435,15 @@ export default function AuthModule() {
           <button onClick={() => setActiveScreen('Login')} style={{ background: 'none', color: 'var(--primary)', fontWeight: '700' }}>Login</button>
         </div>
       </div>
+      </div>
     );
   }
 
   // Screen 7: Forgot Password
   if (activeScreen === 'ForgotPassword') {
     return (
-      <div style={{ flex: 1, padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }} className="animate-fade-in">
+      <div className="auth-page-wrapper animate-fade-in">
+        <div className="form-card">
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.8rem', marginBottom: '6px' }}>Forgot Password</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Provide your register email to receive a password reset link.</p>
@@ -496,6 +492,7 @@ export default function AuthModule() {
             </button>
           </form>
         )}
+      </div>
       </div>
     );
   }

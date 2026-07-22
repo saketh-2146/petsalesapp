@@ -28,64 +28,16 @@ export default function ChatModule() {
     setTypedMessage('');
     setIsTyping(true);
 
-    try {
-      // Build conversation history for the API
-      const history = messages.map(m => ({
-        role: m.sender === 'user' ? 'user' : 'assistant',
-        content: m.text
-      }));
-      
-      // Add the new user message
-      history.push({ role: 'user', content: userMsg.text });
-      
-      // Add system prompt at the beginning
-      history.unshift({
-        role: 'system',
-        content: "You are Grok, a helpful, witty, and knowledgeable AI assistant for a pet sales and adoption app. You provide helpful advice on pets, adoption, breeds, and care. Keep answers relatively concise."
-      });
-
-      const apiKey = import.meta.env.VITE_GROQ_API_KEY;
-      if (!apiKey) {
-        throw new Error("VITE_GROQ_API_KEY is not defined in .env");
-      }
-
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: 'llama3-8b-8192',
-          messages: history,
-          temperature: 0.7,
-          max_tokens: 500
-        })
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error?.message || 'Error connecting to Groq API');
-      }
-
+    // Simulated response instead of Groq API
+    setTimeout(() => {
       const grokMsg = {
         id: Date.now() + 1,
         sender: 'grok',
-        text: data.choices[0].message.content
+        text: "I am currently running in offline mode. Please contact support if you need live assistance!"
       };
       setMessages(prev => [...prev, grokMsg]);
-    } catch (error) {
-      console.error("Groq API Error:", error);
-      const errorMsg = {
-        id: Date.now() + 1,
-        sender: 'grok',
-        text: `Oops, I encountered an error: ${error.message}. Make sure your API key is correct and you restarted the dev server!`
-      };
-      setMessages(prev => [...prev, errorMsg]);
-    } finally {
       setIsTyping(false);
-    }
+    }, 1500);
   };
 
   if (!['ChatList', 'IndividualChat', 'VoiceMessage', 'VideoCall'].includes(activeScreen)) {

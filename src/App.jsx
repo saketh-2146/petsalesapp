@@ -1,173 +1,91 @@
-import React, { useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AppContextProvider, AppContext } from './context/AppContext';
-import DeviceFrame from './components/DeviceFrame';
-import SidebarNavigator from './components/SidebarNavigator';
-import BottomNav from './components/BottomNav';
+
+// Web Layout Components
+import Navbar from './components/web/Navbar';
+import Footer from './components/web/Footer';
+import BottomNavigation from './components/layout/BottomNavigation';
 
 // Screen Modules
 import AuthModule from './components/screens/AuthModule';
 import HomeModule from './components/screens/HomeModule';
-import SearchModule from './components/screens/SearchModule';
+import MarketplaceModule from './components/screens/MarketplaceModule';
 import DetailsModule from './components/screens/DetailsModule';
 import SellingModule from './components/screens/SellingModule';
 import ChatModule from './components/screens/ChatModule';
-import AIRecommendationModule from './components/screens/AIRecommendationModule';
 import AdoptionModule from './components/screens/AdoptionModule';
 import PaymentModule from './components/screens/PaymentModule';
 import ProfileModule from './components/screens/ProfileModule';
 import AdminModule from './components/screens/AdminModule';
+import CareModule from './components/screens/CareModule';
 
 function MainApp() {
-  const { activeScreen } = useContext(AppContext);
+  const location = useLocation();
+  const { setActiveScreen } = useContext(AppContext);
 
-  // Simple view router mapping activeScreen to corresponding Module
-  const renderScreenContent = () => {
-    switch (activeScreen) {
-      // Auth
-      case 'Splash':
-      case 'Onboarding1':
-      case 'Onboarding2':
-      case 'Onboarding3':
-      case 'Login':
-      case 'Register':
-      case 'ForgotPassword':
-      case 'OTP':
-        return <AuthModule />;
-
-      // Home
-      case 'HomeDashboard':
-      case 'PetCategories':
-      case 'PopularPets':
-      case 'NewArrivals':
-      case 'RecommendedPets':
-      case 'NearbyPets':
-        return <HomeModule />;
-
-      // Search
-      case 'SearchScreen':
-      case 'AdvancedFilters':
-      case 'SearchResults':
-      case 'MapView':
-        return <SearchModule />;
-
-      // Details
-      case 'PetDetails':
-      case 'PetHealthDetails':
-      case 'PetVaccinationDetails':
-      case 'PetOwnerProfile':
-      case 'AdoptionRequestForm':
-      case 'PurchaseRequestForm':
-        return <DetailsModule />;
-
-      // Sell
-      case 'SellerDashboard':
-      case 'AddPetListing':
-      case 'UploadPetImages':
-      case 'UploadPetVideos':
-      case 'EnterPetInfo':
-      case 'SetPriceLocation':
-      case 'ListingPreview':
-      case 'ManageListings':
-        return <SellingModule />;
-
-      // Chat
-      case 'ChatList':
-      case 'IndividualChat':
-      case 'VoiceMessage':
-      case 'VideoCall':
-        return <ChatModule />;
-
-      // AI Recommendations
-      case 'PetPreferenceForm':
-      case 'AIRecommendedPets':
-      case 'AICompatibilityScore':
-        return <AIRecommendationModule />;
-
-      // Adoptions
-      case 'MyAdoptionRequests':
-      case 'AdoptionStatusTracking':
-      case 'AdoptionHistory':
-        return <AdoptionModule />;
-
-      // Payments
-      case 'CheckoutScreen':
-      case 'PaymentGateway':
-      case 'PaymentSuccess':
-      case 'PaymentHistory':
-      case 'WalletScreen':
-      case 'AddMoneyScreen':
-        return <PaymentModule />;
-
-      // User Profile
-      case 'UserProfile':
-      case 'EditProfile':
-      case 'FavoritesWishlist':
-        return <ProfileModule />;
-
-      // Admin Controls
-      case 'AdminDashboard':
-        return <AdminModule />;
-
-      default:
-        return <HomeModule />;
-    }
-  };
-
-  // Check if we should render bottom navigation menu
-  const showBottomNav = [
-    'HomeDashboard', 'SearchScreen', 'SellerDashboard', 'ChatList', 'UserProfile',
-    'PetCategories', 'PopularPets', 'NewArrivals', 'RecommendedPets', 'NearbyPets',
-    'SearchResults', 'MapView', 'ManageListings', 'AdoptionHistory', 'MyAdoptionRequests',
-    'FavoritesWishlist', 'PaymentHistory', 'WalletScreen'
-  ].includes(activeScreen);
+  useEffect(() => {
+    const path = location.pathname;
+    if (path === '/') setActiveScreen('HomeDashboard');
+    else if (path.startsWith('/auth')) setActiveScreen('Login');
+    else if (path.startsWith('/market')) setActiveScreen('Marketplace');
+    else if (path.startsWith('/pet/')) setActiveScreen('PetDetails');
+    else if (path.startsWith('/sell')) setActiveScreen('SellingDashboard');
+    else if (path.startsWith('/chat')) setActiveScreen('ChatList');
+    else if (path.startsWith('/care')) setActiveScreen('CareDashboard');
+    else if (path.startsWith('/adoption')) setActiveScreen('MyAdoptionRequests');
+    else if (path.startsWith('/checkout')) setActiveScreen('CheckoutScreen');
+    else if (path.startsWith('/profile')) setActiveScreen('ProfileDashboard');
+    else if (path.startsWith('/admin')) setActiveScreen('AdminDashboard');
+  }, [location.pathname, setActiveScreen]);
 
   return (
-    <div style={{
-      display: 'flex',
-      minHeight: '100vh',
-      width: '100vw',
-      background: 'var(--bg-app)',
-      paddingLeft: '320px', // Offset for the fixed SidebarNavigator
-      justifyContent: 'center',
-      alignItems: 'center',
-      transition: 'background-color var(--transition-normal)'
-    }}>
-      {/* Sidebar catalog shortcuts */}
-      <SidebarNavigator />
+    <div className="web-app-container">
+      <Navbar />
+      
+      <main className="main-content">
+        <Routes>
+          {/* Home Route */}
+          <Route path="/" element={<HomeModule />} />
+          
+          {/* Auth Routes */}
+          <Route path="/auth/*" element={<AuthModule />} />
+          <Route path="/login" element={<Navigate to="/auth" />} />
+          
+          {/* Marketplace & Listing */}
+          <Route path="/market" element={<MarketplaceModule />} />
+          
+          {/* Details */}
+          <Route path="/pet/:id" element={<DetailsModule />} />
+          
+          {/* Selling */}
+          <Route path="/sell/*" element={<SellingModule />} />
+          
+          {/* Care */}
+          <Route path="/care/*" element={<CareModule />} />
+          
+          {/* Messaging / Chat */}
+          <Route path="/chat/*" element={<ChatModule />} />
+          
+          {/* Adoption tracking */}
+          <Route path="/adoption" element={<AdoptionModule />} />
+          
+          {/* Payments & Checkout */}
+          <Route path="/checkout" element={<PaymentModule />} />
+          
+          {/* User Profile */}
+          <Route path="/profile/*" element={<ProfileModule />} />
+          
+          {/* Admin */}
+          <Route path="/admin" element={<AdminModule />} />
 
-      {/* Main device viewport mockup container */}
-      <DeviceFrame>
-        {renderScreenContent()}
-        {showBottomNav && <BottomNav />}
-      </DeviceFrame>
+          {/* Fallback route */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </main>
 
-      {/* Help panel on desktop side */}
-      <div style={{
-        width: '300px',
-        padding: '24px',
-        color: 'var(--text-main)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px',
-        marginLeft: '40px',
-        fontFamily: 'var(--font-body)',
-        background: 'var(--bg-card)',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--border)',
-        boxShadow: 'var(--shadow-sm)'
-      }}>
-        <h4 style={{ color: 'var(--primary)', fontWeight: '800' }}>Review Instructions</h4>
-        <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>
-          Welcome to the <strong>Paws & Claws Sandbox</strong>!
-        </p>
-        <hr style={{ border: 'none', borderTop: '1px solid var(--border)' }} />
-        <ul style={{ paddingLeft: '16px', fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <li>Use the left <strong>50 Screens Navigator</strong> to instantly load any screen state.</li>
-          <li>To test the <strong>OTP flow</strong>: go to Screen 5 or 6, choose Phone Login/Register, type a number, and click send. A mock SMS notification banner will show the verification code.</li>
-          <li>In chat threads, sending a message triggers automatic seller/AI care assistant replies after 1.5s.</li>
-          <li>Creating listings updates arrivals, management feeds, and transaction records in real time.</li>
-        </ul>
-      </div>
+      <BottomNavigation />
+      <Footer />
     </div>
   );
 }
@@ -175,7 +93,9 @@ function MainApp() {
 export default function App() {
   return (
     <AppContextProvider>
-      <MainApp />
+      <BrowserRouter>
+        <MainApp />
+      </BrowserRouter>
     </AppContextProvider>
   );
 }

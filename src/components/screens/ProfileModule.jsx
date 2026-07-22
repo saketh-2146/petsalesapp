@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../../context/AppContext';
-import { User, Edit2, Heart, Clipboard, LogOut, ChevronRight, Settings, Shield, MapPin, Wallet } from 'lucide-react';
+import { User, Edit2, Heart, Clipboard, LogOut, ChevronRight, Settings, Shield, MapPin, Wallet, Clock } from 'lucide-react';
 
 export default function ProfileModule() {
   const { 
@@ -109,6 +109,24 @@ export default function ProfileModule() {
           </div>
 
           <div 
+            onClick={() => setActiveScreen('ManageListings')}
+            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Clock size={16} style={{ color: '#eab308' }} />
+              <span style={{ fontSize: '0.85rem', fontWeight: '600' }}>My Pending Listings</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              {pets.filter(p => p.owner?.id === currentUser?.id && p.status === 'Pending').length > 0 && (
+                <span style={{ background: '#eab308', color: 'white', padding: '2px 6px', borderRadius: '10px', fontSize: '0.65rem', fontWeight: 'bold' }}>
+                  {pets.filter(p => p.owner?.id === currentUser?.id && p.status === 'Pending').length}
+                </span>
+              )}
+              <ChevronRight size={16} style={{ color: 'var(--text-muted)' }} />
+            </div>
+          </div>
+
+          <div 
             onClick={() => setActiveScreen('SellerDashboard')}
             style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}
           >
@@ -211,7 +229,7 @@ export default function ProfileModule() {
             <p style={{ fontSize: '0.75rem', marginTop: '4px' }}>Explore pets on the Home dashboard and tap the heart icon to save bookmarks here.</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div className="responsive-grid">
             {favoritePets.map(pet => (
               <div 
                 key={pet.id} 
