@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { errorHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/authRoutes.js';
 import petRoutes from './routes/petRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.get('/api/health', (req, res) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/pets', petRoutes);
+app.use('/api/users', userRoutes);
 
 // Catch-all for undefined routes
 app.use((req, res, next) => {
