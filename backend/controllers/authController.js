@@ -17,7 +17,7 @@ export const login = async (req, res, next) => {
       return res.status(401).json({ message: error.message });
     }
 
-    // Usually we want to fetch the extended profile
+    // Fetch the extended profile
     let userProfile = { id: data.user.id, email: data.user.email };
     const { data: profile } = await supabase.from('users').select('*').eq('id', data.user.id).single();
     if (profile) userProfile = { ...userProfile, ...profile };
@@ -38,7 +38,10 @@ export const register = async (req, res, next) => {
 
     const { data, error } = await supabase.auth.signUp({
       email,
-      password
+      password,
+      options: {
+        data: { full_name }
+      }
     });
 
     if (error) {
@@ -58,10 +61,32 @@ export const register = async (req, res, next) => {
       if (profileError) console.warn('Failed to insert user profile:', profileError.message);
     }
 
-    res.json({ 
+    res.status(201).json({ 
       token: data.session?.access_token, 
       user: { id: data.user?.id, email, full_name, phone, role }
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required.' });
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/reset`
+    });
+
+    if (error) {
+      return res.status(400).json({ message: error.message });
+    }
+
+    res.json({ message: 'Password reset email sent. Please check your inbox.' });
   } catch (error) {
     next(error);
   }

@@ -1,7 +1,7 @@
 import { apiClient } from './apiClient';
 
 class AuthService {
-  /** Sign up via Render Backend */
+  /** Sign up via Backend */
   async signUp(email, password, fullName, phone, role = 'Buyer') {
     try {
       const { data, error } = await apiClient.post('/auth/register', {
@@ -18,7 +18,7 @@ class AuthService {
     }
   }
 
-  /** Login via Render Backend */
+  /** Login via Backend */
   async login(email, password) {
     try {
       const { data, error } = await apiClient.post('/auth/login', { email, password });
@@ -34,14 +34,13 @@ class AuthService {
     return { error: null };
   }
 
-  /** Google Sign-In - not supported on frontend yet */
+  /** Google Sign-In - placeholder */
   async signInWithOAuth(provider) {
     return { data: null, error: 'OAuth is handled differently when purely backend-driven. Setup required.' };
   }
 
   /** Get user profile from backend */
   async getUserProfile(userId) {
-    // If backend uses JWT for identification, it might just need /users/me
     return await apiClient.get(`/users/${userId}`);
   }
 
@@ -50,25 +49,18 @@ class AuthService {
     return await apiClient.put(`/users/${userId}`, profileData);
   }
 
-  /** Upload avatar to backend */
+  /** Upload avatar via backend */
   async uploadAvatar(userId, file) {
     const formData = new FormData();
     formData.append('avatar', file);
 
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('https://petconnect-wxdg.onrender.com/api/users/avatar', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
-      const data = await response.json();
-      return { url: data.url, error: null };
-    } catch (error) {
-      return { url: null, error: error.message };
+    const { data, error } = await apiClient.upload('/users/avatar', formData);
+
+    if (error) {
+      return { url: null, error };
     }
+
+    return { url: data?.url || null, error: null };
   }
 
   /** Get all users from backend */
@@ -79,8 +71,8 @@ class AuthService {
   /** Send password reset email */
   async resetPassword(email) {
     try {
-      const { error } = await apiClient.post('/auth/reset-password', { email });
-      return { error };
+      const { data, error } = await apiClient.post('/auth/reset-password', { email });
+      return { data, error };
     } catch (error) {
       return { error: error.message };
     }

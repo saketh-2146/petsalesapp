@@ -11,7 +11,7 @@ export default function AuthModule() {
     setCurrentUser, 
   } = useContext(AppContext);
 
-  // Firebase Auth Service
+  // Auth Service (Supabase via backend API)
   // Note: authService is imported at the top of the file
   
   // Splash logic

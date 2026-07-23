@@ -7,18 +7,53 @@ export const getPets = async (req, res, next) => {
       .select(`
         *,
         owner:users(id, full_name, avatar_url, phone, email)
-      `);
+      `)
+      .order('created_at', { ascending: false });
 
     if (error) {
-      // If table doesn't exist or RLS blocks it, return a clear message
+      console.error('Supabase getPets error:', JSON.stringify(error));
+      // If table doesn't exist, return empty array
       if (error.code === '42P01') {
         console.warn('Table "pets" does not exist yet.');
         return res.json([]);
       }
-      throw error;
+      // RLS blocking - return empty array instead of crashing
+      if (error.code === 'PGRST301' || error.message?.includes('RLS')) {
+        console.warn('RLS policy blocking pets fetch:', error.message);
+        return res.json([]);
+      }
+      return res.status(500).json({ message: error.message, code: error.code });
     }
 
     res.json(data || []);
+  } catch (error) {
+    console.error('getPets exception:', error.message);
+    next(error);
+  }
+};
+
+export const getPetById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const { data, error } = await supabase
+      .from('pets')
+      .select(`
+        *,
+        owner:users(id, full_name, avatar_url, phone, email)
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ message: 'Pet not found.' });
+      }
+      console.error('Supabase getPetById error:', JSON.stringify(error));
+      return res.status(500).json({ message: error.message, code: error.code });
+    }
+
+    res.json(data);
   } catch (error) {
     next(error);
   }
@@ -34,10 +69,16 @@ export const createPet = async (req, res, next) => {
     const { data, error } = await supabase
       .from('pets')
       .insert([newPet])
-      .select()
+      .select(`
+        *,
+        owner:users(id, full_name, avatar_url, phone, email)
+      `)
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase createPet error:', JSON.stringify(error));
+      return res.status(400).json({ message: error.message, code: error.code });
+    }
 
     res.status(201).json(data);
   } catch (error) {
@@ -54,11 +95,15 @@ export const updatePet = async (req, res, next) => {
       .from('pets')
       .update(updates)
       .eq('id', id)
-      // Optional: Add RLS check like .eq('owner_id', req.user.id) if Supabase RLS isn't fully configured
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return res.status(404).json({ message: 'Pet not found.' });
+      }
+      return res.status(400).json({ message: error.message, code: error.code });
+    }
 
     res.json(data);
   } catch (error) {
@@ -75,7 +120,9 @@ export const deletePet = async (req, res, next) => {
       .delete()
       .eq('id', id);
 
-    if (error) throw error;
+    if (error) {
+      return res.status(400).json({ message: error.message, code: error.code });
+    }
 
     res.status(204).send();
   } catch (error) {
